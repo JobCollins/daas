@@ -36,7 +36,7 @@ with DAG(
         image="rappel-conso/spark:latest",
         api_version="auto",
         auto_remove=True,
-        command="./bin/spark-submit --master local[*] --packages org.postgresql:postgresql:42.5.4,org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 ./spark_streaming.py",
+        command="./bin/spark-submit --master local[*] --packages org.postgresql:postgresql:42.5.4,org.apache.spark:spark-sql-kafka-0-10_2.12:3.5.0 ./spark_processing.py",
         docker_url='tcp://docker-proxy:2375',
         environment={'SPARK_LOCAL_HOSTNAME': 'localhost'},
         network_mode="airflow-kafka",

@@ -14,6 +14,7 @@ logging.basicConfig(
 )
 
 
+
 def create_spark_session() -> SparkSession:
     spark = (
         SparkSession.builder.appName("PostgreSQL Connection with PySpark")

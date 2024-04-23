@@ -70,3 +70,7 @@ Verify that the `rappel_conso_table` is filled with data
 `SELECT count(*) FROM rappel_conso_table`
 
 
+## Start the LLM Data Assistant Application
+
+To start the LLM run
+`streamlit run streamlit_app/app.py`

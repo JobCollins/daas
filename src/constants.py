@@ -14,7 +14,7 @@ URL_API = URL_API.format(MAX_LIMIT, "{}", "{}")
 
 # POSTGRES PARAMS
 user_name = os.getenv("POSTGRES_DOCKER_USER", "localhost")
-POSTGRES_URL = f"jdbc:postgresql://{user_name}:5432/postgres"
+POSTGRES_URL = f"postgresql+psycopg2://{user_name}:5432/postgres"
 POSTGRES_PROPERTIES = {
     "user": "postgres",
     "password": os.getenv("POSTGRES_PASSWORD"),

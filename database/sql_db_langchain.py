@@ -1,10 +1,10 @@
 import os
 
 from langchain.sql_database import SQLDatabase
-from .constants_db import port, password, user, host, dbname
+from src.constants import POSTGRES_URL
 
 
-url = f"postgresql+psycopg2://{user}:{password}@{host}:{port}/{dbname}"
+url = POSTGRES_URL
 TABLE_NAME = "rappel_conso_table"
 
 db = SQLDatabase.from_uri(

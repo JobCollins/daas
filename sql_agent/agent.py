@@ -41,8 +41,8 @@ def get_agent_llm(agent_llm_name: str):
 
 
 def create_agent(
-    tool_llm_name: str = "gpt-4-1106-preview",
-    agent_llm_name: str = "gpt-4-1106-preview",
+    tool_llm_name: str = "llama3",
+    agent_llm_name: str = "llama3",
 ):
     """
     Creates a SQL agent using the specified tool and agent LLM names.
@@ -66,7 +66,7 @@ def create_agent(
         agent_type=AgentType.ZERO_SHOT_REACT_DESCRIPTION,
         input_variables=["input", "agent_scratchpad", "history"],
         suffix=CUSTOM_SUFFIX,
-        agent_executor_kwargs={"memory": memory},
+        agent_executor_kwargs={"memory": memory, "handle_parsing_errors":True},
         extra_tools=agent_tools,
         verbose=True,
     )

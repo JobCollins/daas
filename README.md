@@ -64,6 +64,8 @@ Search for the dag `kafka_spark_dag` and click on it.
 
 Press the play button on your right to start the task. A task is successfully complete when it is green.
 
+Go to pgAdmin4
+
 Verify that the `rappel_conso_table` is filled with data
 `SELECT count(*) FROM rappel_conso_table`
 

@@ -24,7 +24,7 @@ def get_lat_lon(location):
     lat = response['features'][0]['properties']['lat']
     lon = response['features'][0]['properties']['lon']
 
-    return lon, lat
+    return lat, lon
 
 def get_soil_from_api(lat, lon):
     """

@@ -1,1 +1,6 @@
 data_dir: "./data/"
+db_engine_url: "postgresql://postgres:ColynX360@localhost:5432/daas"
+table_names:
+    - table_one
+    - table_two
+    - table_three

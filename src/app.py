@@ -98,8 +98,8 @@ if submit_button and user_message and location:
 
     lat = col1.number_input("Latitude", value=lat, format="%.4f")
     lon = col2.number_input("Longitude", value=lon, format="%.4f")
-    # show_add_info = st.toggle("Provide additional information", value=False, help="""If this is activated you will see all the variables
-    #                         that were taken into account for the analysis as well as some plots.""")
+    show_add_info = st.toggle("Provide additional information", value=False, help="""If this is activated you will see all the variables
+                            that were taken into account for the analysis as well as some plots.""")
     
     
     # if map_data:
@@ -155,6 +155,32 @@ if submit_button and user_message and location:
             verbose=True,
         )
 
+    # PLOTTING ADDITIONAL INFORMATION
+    if show_add_info: 
+        st.subheader("Additional information", divider='rainbow')
+        st.markdown(f"**Coordinates:** {round(lat, 4)}, {round(lon, 4)}")
+        st.markdown(f"**Soil type:** {soil_type}")
+        
+        # Climate Data
+        st.markdown("**Climate data:**")
+        st.markdown(
+            "Near surface temperature",
+        )
+        st.line_chart(
+            df,
+            x="Month",
+            y=["Present Day Temperature", "Future Temperature"],
+            color=["#d62728", "#2ca02c"],
+        )
+        st.markdown(
+            "Precipitation",
+        )
+        st.line_chart(
+            df,
+            x="Month",
+            y=["Present Day Precipitation", "Future Precipitation"],
+            color=["#d62728", "#2ca02c"],
+        )
 
 
     

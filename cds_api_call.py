@@ -14,7 +14,7 @@ Format: NetCDF in zip archives
 """
 
 # CDS API
-import cds_api_call
+import cdsapi
 
 # Libraries for working with multidimensional arrays
 import numpy as np
@@ -48,7 +48,7 @@ KEY = os.getenv('CDS_API_KEY')
 
 
 def call_api(url=URL, key=KEY):
-    client = cds_api_call.Client(url=url, key=key)
+    client = cdsapi.Client(url=url, key=key)
     return client
 
 def retrieve_cordex_historical(client, data_dir):
@@ -98,5 +98,18 @@ def load_hist_proj(data_dir):
     proj_data = xr.open_mfdataset(f'{data_dir}*CanESM2_rcp45*.nc')
     return hist_data, proj_data
 
+
+if __name__ == "__main__":
+    config_path = os.getenv('CONFIG_PATH', 'config.yml')
+    # print(config_path)
+    with open(config_path, 'r') as file:
+        config = yaml.safe_load(file)
+
+    data_dir = config['data_dir']
+
+    client = call_api()
+    retrieve_cordex_historical(client, data_dir)
+    retrieve_cordex_projection(client, data_dir)
+    unzip_files(data_dir)
 
 

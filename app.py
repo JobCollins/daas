@@ -29,7 +29,7 @@ lon_default = config['lon_default']
 historical, projection = load_hist_proj(data_dir=data_dir)
 
 st.title(
-    ":earth_africa: Daas-Climate"
+    ":earth_africa: daas-Climate"
 )
 
 # Wrap the input fields and the submit button in a form
@@ -63,8 +63,8 @@ if submit_button and user_message and location:
 
     lat = col1.number_input("Latitude", value=lat, format="%.4f")
     lon = col2.number_input("Longitude", value=lon, format="%.4f")
-    show_add_info = st.toggle("Provide additional information", value=False, help="""If this is activated you will see all the variables
-                            that were taken into account for the analysis as well as some plots.""")
+    # show_add_info = st.toggle("Provide additional information", value=False, help="""If this is activated you will see all the variables
+    #                         that were taken into account for the analysis as well as some plots.""")
     
     
     # if map_data:
@@ -82,7 +82,7 @@ if submit_button and user_message and location:
             [{
                 'latitude': lat,
                 'longitude': lon
-            }], zoom=9
+            }], zoom=12
         )     
 
     

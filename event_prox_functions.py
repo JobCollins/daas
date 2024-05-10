@@ -28,6 +28,6 @@ def filter_events_within_square(lat, lon, table_name, distance_from_event):
         (data['longitude'] >= lon_min) & (data['longitude'] <= lon_max)
     ]
 
-    prompt_haz_dat = filtered_data.drop(columns=['country', 'geolocation', 'latitude', 'longitude'])
+    prompt_haz_data = filtered_data.drop(columns=['country', 'geolocation', 'latitude', 'longitude'])
 
-    return filtered_data, prompt_haz_dat
+    return filtered_data, prompt_haz_data

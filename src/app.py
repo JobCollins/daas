@@ -98,7 +98,7 @@ if submit_button and user_message and location:
 
     lat = col1.number_input("Latitude", value=lat, format="%.4f")
     lon = col2.number_input("Longitude", value=lon, format="%.4f")
-    show_add_info = st.toggle("Provide additional information", value=False, help="""If this is activated you will see all the variables
+    show_add_info = st.toggle("Provide additional information", value=True, help="""If this is activated you will see all the variables
                             that were taken into account for the analysis as well as some plots.""")
     
     
@@ -154,6 +154,11 @@ if submit_button and user_message and location:
             future_pr_str=data_dict["future_pr"],
             verbose=True,
         )
+
+        st.subheader("Here is what you need to know", divider='rainbow')
+        st.markdown(output)
+
+        # print(output)
 
     # PLOTTING ADDITIONAL INFORMATION
     if show_add_info: 

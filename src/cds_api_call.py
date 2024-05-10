@@ -24,9 +24,8 @@ import xarray as xr
 import matplotlib.path as mpath
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap, LinearSegmentedColormap
-import cartopy.crs as ccrs
-from cartopy.mpl.gridliner import LONGITUDE_FORMATTER, LATITUDE_FORMATTER
-import cartopy.feature as cfeature
+
+import streamlit as st
 
 # Other libraries (e.g. paths, filenames, zipfile extraction)
 from glob import glob
@@ -92,7 +91,7 @@ def unzip_files(data_dir):
     for j in cordex_zip_paths:
         with zipfile.ZipFile(j, 'r') as zip_ref:
             zip_ref.extractall(f'{data_dir}')
-
+@st.cache_data
 def load_hist_proj(data_dir):
     hist_data = xr.open_mfdataset(f'{data_dir}*CanESM2_historical*.nc')
     proj_data = xr.open_mfdataset(f'{data_dir}*CanESM2_rcp45*.nc')

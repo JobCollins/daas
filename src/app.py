@@ -22,7 +22,7 @@ from langchain.chat_models import ChatOpenAI, ChatOllama
 from langchain.chains import LLMChain
 
 
-config_path = os.getenv('CONFIG_PATH', 'config.yml')
+config_path = os.getenv('CONFIG_PATH', 'config.yaml')
 # print(config_path)
 with open(config_path, 'r') as file:
     config = yaml.safe_load(file)

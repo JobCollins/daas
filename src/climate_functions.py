@@ -72,7 +72,7 @@ def convert_prate_mm(data):
     # Convert precipitation rate to accumulation in mm
     # Calculate number of days for each forecast month and add it as coordinate information to the data array
     vt = [ pd.to_datetime(data.time.values) + relativedelta(months=fcmonth-1) for fcmonth in data.forecastMonth]
-    seas5_anomalies_3m_202403_em = seas5_anomalies_3m_202403_em.assign_coords(valid_time=('forecastMonth',vt))
+    data = data.assign_coords(valid_time=('forecastMonth',vt))
     # seas5_anomalies_3m_202403_em ['month_year'] = seas5_anomalies_3m_202403_em['valid_time'].dt.strftime('%b, %Y')
     vts = [[thisvt+relativedelta(months=-mm) for mm in range(3)] for thisvt in vt]
     numdays = [np.sum([monthrange(dd.year,dd.month)[1] for dd in d3]) for d3 in vts]
@@ -90,6 +90,7 @@ def convert_prate_mm(data):
     # Add updated attributes
     data_tp.attrs['units'] = 'mm'
     data_tp.attrs['long_name'] = 'SEAS3 3-monthly total precipitation ensemble mean anomaly for 6 lead-time months, start date in May 2021.'
+    return data_tp
 
 def calculate_season_anomalies_location(forecast, hindcast, sub):
     # Compute 3-month rolling averages
@@ -105,6 +106,7 @@ def calculate_season_anomalies_location(forecast, hindcast, sub):
     seas5_anomalies_3m_202403_em
 
     seas5_anomalies_3m_202403_em_tp = convert_prate_mm(seas5_anomalies_3m_202403_em)
+    # print("seas: ", seas5_anomalies_3m_202403_em_tp)
     
     # define Africa
     # sub = (40, -23, -35, 55) #North, West, South, East
@@ -120,11 +122,13 @@ def extract_seasonal_data(lat, lon, seasonal_location_data, location_seasons):
         return value[0:11]
     
     def filter_seasons_location(df, location_seasons):
-        df.seasons = df.valid_time.apply(extract_season_str)
+        df['seasons'] = df.valid_time.apply(extract_season_str)
         filtered_df = df[df.seasons.isin(location_seasons)]
+        # print("filter: ",filtered_df.head())
         return filtered_df
     
     data = filter_seasons_location(data, location_seasons)
+    # print(data.head())
 
     def get_current_season_anomaly(df):
         

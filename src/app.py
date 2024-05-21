@@ -19,7 +19,9 @@ from langchain.prompts.chat import (
     HumanMessagePromptTemplate,
 )
 from langchain.chat_models import ChatOpenAI, ChatOllama
+from ollama_functions import OllamaFunctions
 from langchain.chains import LLMChain
+
 
 
 config_path = os.getenv('CONFIG_PATH', 'config.yaml')
@@ -61,10 +63,13 @@ class StreamHandler(BaseCallbackHandler):
             display_function(self.text)
         else:
             raise ValueError(f"Invalid display_method: {self.display_method}")
+        
 
 
 historical, projection = load_hist_proj(data_dir=data_dir)
 forecast, hindcast = load_seasonal_forecast(data_dir=data_dir)
+
+# print(forecast)
 
 st.title(
     ":earth_africa: daas-Climate"
@@ -139,8 +144,11 @@ if submit_button and user_message and location:
     with st.spinner("Generating..."):
         chat_box = st.empty()
         stream_handler = StreamHandler(chat_box, display_method="write")
-        llm = ChatOllama(
-            model_name="llama3"
+        # llm = ChatOllama(
+        #     model_name="llama3:latest", base_url="http://localhost:11434/"
+        # )
+        llm = OllamaFunctions(
+            model="llama3", temperature=0, format="json"
         )
         system_message_prompt = SystemMessagePromptTemplate.from_template(system_role)
         human_message_prompt = HumanMessagePromptTemplate.from_template(content_message)
@@ -148,7 +156,7 @@ if submit_button and user_message and location:
             [system_message_prompt, human_message_prompt]
         )
         chain = LLMChain(
-            llm=llm,
+            llm=llm.with_structured_output(),
             prompt=chat_prompt,
             verbose=True,
         ) 
@@ -166,7 +174,7 @@ if submit_button and user_message and location:
         )
 
         st.subheader("Here is what you need to know", divider='rainbow')
-        st.markdown(output)
+        st.markdown(output['tool_input']['response'])
 
         # print(output)
 

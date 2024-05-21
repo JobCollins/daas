@@ -7,7 +7,7 @@ import folium
 
 
 from cds_api_call import load_hist_proj, load_seasonal_forecast
-from climate_functions import calculate_season_anomalies_location, extract_climate_data, extract_seasonal_data
+from climate_functions import calculate_season_anomalies_location, extract_cordex_climate_data, extract_seasonal_data
 from geo_loc import get_lat_lon, get_soil_from_api
 # from postgres_query import read_data_db
 # from event_prox_functions import filter_events_within_square
@@ -131,7 +131,7 @@ if submit_button and user_message and location:
         # define Kenya 
         sub = (5.5, 33, -5.5, 43) #North, West, South, East
 
-        df, data_dict = extract_climate_data(lat, lon, historical, projection)
+        df, data_dict = extract_cordex_climate_data(lat, lon, historical, projection)
         seasonal_anomalies = calculate_season_anomalies_location(forecast, hindcast, sub)
         current_season_anomaly = extract_seasonal_data(lat, lon, seasonal_anomalies, seasons_ke)
 

@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
-from src.geo_loc import ds_latlon_subset
+from geo_loc import ds_latlon_subset
 
 def convert_to_mm_per_month(monthly_precip_kg_m2_s1):
     days_in_months = np.array([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])

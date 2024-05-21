@@ -5,6 +5,11 @@ table_names:
     - table_two
     - table_three
 distance_from_event: 5.0
+seasons_ke: 
+    - Mar Apr May
+    - Jun Jul Aug
+    - Sep Oct Nov
+    - Dec Jan Feb
 system_role: |
     You are the system that should help people know what the weather will be like in coming months.
     You will be provided with data on historical climate and future climate projections.

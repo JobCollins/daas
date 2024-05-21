@@ -97,6 +97,11 @@ def load_hist_proj(data_dir):
     proj_data = xr.open_mfdataset(f'{data_dir}*CanESM2_rcp45*.nc')
     return hist_data, proj_data
 
+def load_seasonal_forecast(data_dir):
+    seas5_forecast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib', engine='cfgrib', 
+                                 backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+    ds_hindcast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib', engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+    return seas5_forecast, ds_hindcast
 
 if __name__ == "__main__":
     config_path = os.getenv('CONFIG_PATH', 'config.yml')

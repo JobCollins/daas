@@ -6,8 +6,8 @@ from streamlit_folium import st_folium
 import folium
 
 
-from cds_api_call import load_hist_proj
-from climate_functions import extract_climate_data
+from cds_api_call import load_hist_proj, load_seasonal_forecast
+from climate_functions import calculate_season_anomalies_location, extract_climate_data, extract_seasonal_data
 from geo_loc import get_lat_lon, get_soil_from_api
 # from postgres_query import read_data_db
 # from event_prox_functions import filter_events_within_square
@@ -31,6 +31,7 @@ data_dir = config['data_dir']
 db_engine_url = config['db_engine_url']
 tables = config['table_names']
 distance_from_event = config['distance_from_event']
+seasons_ke = config['seasons_ke']
 system_role = config['system_role']
 
 content_message = "{user_message} \n \
@@ -40,6 +41,7 @@ content_message = "{user_message} \n \
       Future monthly temperatures for each month at the location: {future_temp_str}\
       Current precipitation flux (mm/month): {hist_pr_str} \
       Future precipitation flux (mm/month): {future_pr_str} \
+      Current seasonal precipitation anomaly: {current_season_pr_anomaly}\
       "
 
 class StreamHandler(BaseCallbackHandler):
@@ -62,6 +64,7 @@ class StreamHandler(BaseCallbackHandler):
 
 
 historical, projection = load_hist_proj(data_dir=data_dir)
+forecast, hindcast = load_seasonal_forecast(data_dir=data_dir)
 
 st.title(
     ":earth_africa: daas-Climate"
@@ -124,8 +127,14 @@ if submit_button and user_message and location:
             soil_type = get_soil_from_api(lat, lon)
         except:
             soil_type = "Not known"
+        
+        # define Kenya 
+        sub = (5.5, 33, -5.5, 43) #North, West, South, East
 
         df, data_dict = extract_climate_data(lat, lon, historical, projection)
+        seasonal_anomalies = calculate_season_anomalies_location(forecast, hindcast, sub)
+        current_season_anomaly = extract_seasonal_data(lat, lon, seasonal_anomalies, seasons_ke)
+
 
     with st.spinner("Generating..."):
         chat_box = st.empty()
@@ -152,6 +161,7 @@ if submit_button and user_message and location:
             future_temp_str=data_dict["future_temp"],
             hist_pr_str=data_dict["hist_pr"],
             future_pr_str=data_dict["future_pr"],
+            current_season_pr_anomaly = current_season_anomaly,
             verbose=True,
         )
 

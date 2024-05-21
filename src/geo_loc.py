@@ -44,3 +44,27 @@ def get_soil_from_api(lat, lon):
         return data["wrb_class_name"]
     except Timeout:
         return "not found"
+    
+
+# Define a geographical subset
+def ds_latlon_subset(ds,area,latname='latitude',lonname='longitude'):
+    """
+     generates a geographical subset of an xarray data array. 
+     The latitude and longitude values that are outside the defined area are dropped.
+    """
+
+    lon1 = area[1] % 360
+    lon2 = area[3] % 360
+    if lon2 >= lon1:
+        masklon = ( (ds[lonname]<=lon2) & (ds[lonname]>=lon1) ) 
+    else:
+        masklon = ( (ds[lonname]<=lon2) | (ds[lonname]>=lon1) ) 
+        
+    mask = ((ds[latname]<=area[0]) & (ds[latname]>=area[2])) * masklon
+    dsout = ds.where(mask,drop=True)
+    
+    if lon2 < lon1:
+        dsout[lonname] = (dsout[lonname] + 180) % 360 - 180
+        dsout = dsout.sortby(dsout[lonname])        
+    
+    return dsout

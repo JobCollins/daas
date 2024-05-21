@@ -311,6 +311,8 @@ class OllamaFunctions(ChatOllama):
             [system_message] + messages, stop=stop, run_manager=run_manager, **kwargs
         )
         chat_generation_content = response_message.generations[0].text
+        chat_generation_content = chat_generation_content.rstrip("\n\r")
+        print(chat_generation_content)
         if not isinstance(chat_generation_content, str):
             raise ValueError("OllamaFunctions does not support non-string output.")
         try:
@@ -321,6 +323,7 @@ class OllamaFunctions(ChatOllama):
                 Please try again. 
                 Response: {chat_generation_content}"""
             )
+            
         called_tool_name = parsed_chat_result["tool"]
         called_tool_arguments = parsed_chat_result["tool_input"]
         called_tool = next(

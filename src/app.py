@@ -1,3 +1,4 @@
+import json
 import yaml
 import os
 
@@ -156,7 +157,7 @@ if submit_button and user_message and location:
             [system_message_prompt, human_message_prompt]
         )
         chain = LLMChain(
-            llm=llm.with_structured_output(),
+            llm=llm,
             prompt=chat_prompt,
             verbose=True,
         ) 

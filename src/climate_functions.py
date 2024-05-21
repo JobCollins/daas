@@ -10,7 +10,7 @@ from geo_loc import ds_latlon_subset
 
 def convert_to_mm_per_month(monthly_precip_kg_m2_s1):
     days_in_months = np.array([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
-    return monthly_precip_kg_m2_s1 * 30 * 60 * 60 * 24 * 1000
+    return monthly_precip_kg_m2_s1 * 30 * 60 * 60 * 24
 
 @st.cache_data
 def extract_cordex_climate_data(lat, lon, _hist, _future):

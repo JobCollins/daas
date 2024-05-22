@@ -19,9 +19,11 @@ from langchain.prompts.chat import (
     SystemMessagePromptTemplate,
     HumanMessagePromptTemplate,
 )
-from langchain.chat_models import ChatOpenAI, ChatOllama
+from langchain_community.chat_models.ollama import ChatOllama
+from langchain_openai import ChatOpenAI
 from ollama_functions import OllamaFunctions
 from langchain.chains import LLMChain
+from langchain_core.pydantic_v1 import BaseModel
 
 
 
@@ -66,6 +68,12 @@ class StreamHandler(BaseCallbackHandler):
             raise ValueError(f"Invalid display_method: {self.display_method}")
         
 
+
+
+class AnswerWithJustification(BaseModel):
+    '''An answer to the user question along with justification for the answer.'''
+    answer: str
+    justification: str
 
 historical, projection = load_hist_proj(data_dir=data_dir)
 forecast, hindcast = load_seasonal_forecast(data_dir=data_dir)
@@ -145,12 +153,15 @@ if submit_button and user_message and location:
     with st.spinner("Generating..."):
         chat_box = st.empty()
         stream_handler = StreamHandler(chat_box, display_method="write")
-        # llm = ChatOllama(
-        #     model_name="llama3:latest", base_url="http://localhost:11434/"
-        # )
-        llm = OllamaFunctions(
-            model="llama3", temperature=0, format="json"
+        llm = ChatOpenAI(
+            openai_api_base = "http://localhost:11434/v1",
+            api_key= "ollama",
+            model="llama3",
+            temperature=0
         )
+        # llm = OllamaFunctions(
+        #     model="llama3", temperature=0
+        # )
         system_message_prompt = SystemMessagePromptTemplate.from_template(system_role)
         human_message_prompt = HumanMessagePromptTemplate.from_template(content_message)
         chat_prompt = ChatPromptTemplate.from_messages(
@@ -175,7 +186,7 @@ if submit_button and user_message and location:
         )
 
         st.subheader("Here is what you need to know", divider='rainbow')
-        st.markdown(output['tool_input']['response'])
+        st.markdown(output)
 
         # print(output)
 

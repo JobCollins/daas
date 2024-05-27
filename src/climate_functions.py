@@ -8,9 +8,13 @@ import streamlit as st
 
 from geo_loc import ds_latlon_subset
 
-def convert_to_mm_per_month(monthly_precip_kg_m2_s1):
-    days_in_months = np.array([31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31])
-    return monthly_precip_kg_m2_s1 * 30 * 60 * 60 * 24
+def convert_to_mm_per_month(data):
+    data_climatology = data.groupby('time.month').mean()
+    numdays = [31,28,31,30,31,30,31,31,30,31,30,31]
+    data_climatology = data.assign_coords(numdays=('month',numdays))
+    # see https://www.researchgate.net/post/How-do-I-convert-ERA-Interim-precipitation-estimates-from-kg-m2-s-to-mm-day#:~:text=kg%2Fm2%2Fs%20is%20equivalent,of%20days%20in%20a%20month.
+    data_climatology_mm_month = data_climatology * data_climatology.numdays *24 *60 * 60
+    return data_climatology_mm_month
 
 @st.cache_data
 def extract_cordex_climate_data(lat, lon, _hist, _future):

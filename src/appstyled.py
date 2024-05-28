@@ -201,7 +201,7 @@ if submit_button and user_message and location:
     show_add_info = st.checkbox("Provide additional information", value=True, help="""If this is activated you will see all the variables
                             that were taken into account for the analysis as well as some plots.""")
 
-    with st.spinner("Loading location information...."):
+    with st.spinner("Analyzing location information...."):
         st.markdown(f"**Coordinates:** {round(lat, 4)}, {round(lon, 4)}")
 
         # Define map 
@@ -227,8 +227,14 @@ if submit_button and user_message and location:
     with st.spinner("Generating..."):
         chat_box = st.empty()
         stream_handler = StreamHandler(chat_box, display_method="write")
+        # llm = ChatOpenAI(
+        #     model="gpt-4o",
+        #     temperature=0
+        # )
         llm = ChatOpenAI(
-            model="gpt-4o",
+            openai_api_base = "http://localhost:11434/v1",
+            api_key= "ollama",
+            model="llama3",
             temperature=0
         )
 

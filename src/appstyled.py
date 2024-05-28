@@ -22,6 +22,8 @@ from ollama_functions import OllamaFunctions
 from langchain.chains import LLMChain
 from langchain_core.pydantic_v1 import BaseModel
 
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
 config_path = os.getenv('CONFIG_PATH', 'config.yaml')
 # print(config_path)
 with open(config_path, 'r') as file:
@@ -226,9 +228,7 @@ if submit_button and user_message and location:
         chat_box = st.empty()
         stream_handler = StreamHandler(chat_box, display_method="write")
         llm = ChatOpenAI(
-            openai_api_base = "http://localhost:11434/v1",
-            api_key= "ollama",
-            model="llama3",
+            model="gpt-4o",
             temperature=0
         )
 

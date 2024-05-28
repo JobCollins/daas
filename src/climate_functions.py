@@ -11,7 +11,7 @@ from geo_loc import ds_latlon_subset
 def convert_to_mm_per_month(data):
     data_climatology = data.groupby('time.month').mean()
     numdays = [31,28,31,30,31,30,31,31,30,31,30,31]
-    data_climatology = data.assign_coords(numdays=('month',numdays))
+    data_climatology = data_climatology.assign_coords(numdays=('month',numdays))
     # see https://www.researchgate.net/post/How-do-I-convert-ERA-Interim-precipitation-estimates-from-kg-m2-s-to-mm-day#:~:text=kg%2Fm2%2Fs%20is%20equivalent,of%20days%20in%20a%20month.
     data_climatology_mm_month = data_climatology * data_climatology.numdays *24 *60 * 60
     return data_climatology_mm_month
@@ -36,8 +36,10 @@ def extract_cordex_climate_data(lat, lon, _hist, _future):
         1:-1
     ]
 
-    hist_pr = _hist.sel(rlat=lat, rlon=lon, method="nearest")["pr"].values
+    hist_pr = _hist['pr']
     hist_pr = convert_to_mm_per_month(hist_pr)
+    print(hist_pr)
+    hist_pr = hist_pr.sel(rlat=lat, rlon=lon, method="nearest").values
 
     hist_pr_str = np.array2string(hist_pr.ravel(), precision=3, max_line_width=100)[
         1:-1
@@ -49,8 +51,9 @@ def extract_cordex_climate_data(lat, lon, _hist, _future):
         future_temp.ravel(), precision=3, max_line_width=100
     )[1:-1]
 
-    future_pr = _future.sel(rlat=lat, rlon=lon, method="nearest")["pr"].values
+    future_pr = _future['pr']
     future_pr = convert_to_mm_per_month(future_pr)
+    future_pr = future_pr.sel(rlat=lat, rlon=lon, method="nearest").values
     future_pr_str = np.array2string(future_pr.ravel(), precision=3, max_line_width=100)[
         1:-1
     ]

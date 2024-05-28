@@ -31,24 +31,26 @@ def extract_cordex_climate_data(lat, lon, _hist, _future):
     - df (pandas.DataFrame): DataFrame containing present day and future temperature, precipitation, and wind speed data for each month of the year.
     - data_dict (dict): Dictionary containing string representations of the extracted climate data.
     """
-    hist_temp = _hist.sel(rlat=lat, rlon=lon, method="nearest")["tas"].values - 273.15
-    hist_temp_str = np.array2string(hist_temp.ravel(), precision=3, max_line_width=100)[
+    hist_temp = _hist['tas']
+    hist_temp = hist_temp.groupby('time.month').mean()
+    hist_temp = hist_temp.sel(rlat=lat, rlon=lon, method="nearest") - 273.15
+    hist_temp_str = np.array2string(hist_temp.values.ravel(), precision=3, max_line_width=100)[
         1:-1
     ]
 
     hist_pr = _hist['pr']
     hist_pr = convert_to_mm_per_month(hist_pr)
-    print(hist_pr)
     hist_pr = hist_pr.sel(rlat=lat, rlon=lon, method="nearest").values
 
     hist_pr_str = np.array2string(hist_pr.ravel(), precision=3, max_line_width=100)[
         1:-1
     ]
 
-
-    future_temp = _future.sel(rlat=lat, rlon=lon, method="nearest")["tas"].values - 273.15
+    future_temp = _future['tas']
+    future_temp = future_temp.groupby('time.month').mean()
+    future_temp = future_temp.sel(rlat=lat, rlon=lon, method="nearest") - 273.15
     future_temp_str = np.array2string(
-        future_temp.ravel(), precision=3, max_line_width=100
+        future_temp.values.ravel(), precision=3, max_line_width=100
     )[1:-1]
 
     future_pr = _future['pr']
@@ -58,12 +60,25 @@ def extract_cordex_climate_data(lat, lon, _hist, _future):
         1:-1
     ]
 
-    df = pd.DataFrame(
+    print("hist_temp: ", len(hist_temp))
+    print("hist_temp: ", len(hist_pr))
+    print("future pr: ", len(future_temp))
+    print("future pr: ", len(future_pr))
+
+    df_temp = pd.DataFrame(
         {
-            "Present Day Temperature": hist_temp[0],
-            "Future Temperature": future_temp[0],
-            "Present Day Precipitation": hist_pr[0],
-            "Future Precipitation": future_pr[0],
+            "Present Day Temperature": hist_temp,
+            "Future Temperature": future_temp,
+            # "Present Day Precipitation": hist_pr,
+            # "Future Precipitation": future_pr,
+            "Month": range(1, 13),
+        }
+    )
+    df_pr = pd.DataFrame(
+        {
+            
+            "Present Day Precipitation": hist_pr,
+            "Future Precipitation": future_pr,
             "Month": range(1, 13),
         }
     )
@@ -73,7 +88,7 @@ def extract_cordex_climate_data(lat, lon, _hist, _future):
         "future_temp": future_temp_str,
         "future_pr": future_pr_str,
     }
-    return df, data_dict
+    return df_temp, df_pr, data_dict
 
 def convert_prate_mm(data):
     # Convert precipitation rate to accumulation in mm

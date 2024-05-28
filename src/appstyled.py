@@ -73,6 +73,13 @@ forecast, hindcast = load_seasonal_forecast(data_dir=data_dir)
 # Custom CSS for styling and mobile responsiveness
 custom_css = """
 <style>
+[data-testid="stAppViewContainer"]{
+background-color: #e5e5f7;
+opacity: 0.8;
+background-image:  radial-gradient(#4caf50 0.5px, transparent 0.5px), radial-gradient(#4caf50 0.5px, #e5e5f7 0.5px);
+background-size: 20px 20px;
+background-position: 0 0,10px 10px;
+}
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
@@ -86,6 +93,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stButton button, .stFormSubmitButton button {
+    text-align: center;
     background-color: #4CAF50 !important;
     color: white !important;
     border: none;
@@ -109,7 +117,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stTextInput input {
-    border: 2px solid #4CAF50 !important;
+    background: transparent;
+    border-bottom: 1px solid #4CAF50 !important;
     border-radius: 5px;
     padding: 10px;
     font-size: 16px;
@@ -163,7 +172,7 @@ st.markdown(custom_css, unsafe_allow_html=True)
 # Title and Description
 st.markdown("""
     <div style="text-align: center;">
-        <h1>:earth_africa: daas-Climate</h1>
+        <h1>daas-Climate Services</h1>
     </div>
     <div style="text-align: center; margin-bottom: 20px;">
         <p>Evaluate climate conditions for your activities at any location.</p>
@@ -171,7 +180,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 # Wrap the input fields and the submit button in a form
-with st.form(key='my_form'):
+with st.form(key='my_form', border=False):
     user_message = st.text_input(
         "Describe the activity that you would like to evaluate for this location: "
     )
@@ -179,14 +188,14 @@ with st.form(key='my_form'):
         "Please enter your location of interest: "
     )
     
-    submit_button = st.form_submit_button(label='Generate')
+    submit_button = st.form_submit_button(label='Consult')
 
 if submit_button and user_message and location:
     lat, lon = get_lat_lon(location)
 
-    col1, col2 = st.columns(2)
-    lat = col1.number_input("Latitude", value=lat, format="%.4f")
-    lon = col2.number_input("Longitude", value=lon, format="%.4f")
+    # col1, col2 = st.columns(2)
+    # lat = col1.number_input("Latitude", value=lat, format="%.4f")
+    # lon = col2.number_input("Longitude", value=lon, format="%.4f")
     show_add_info = st.checkbox("Provide additional information", value=True, help="""If this is activated you will see all the variables
                             that were taken into account for the analysis as well as some plots.""")
 
@@ -198,7 +207,7 @@ if submit_button and user_message and location:
             [{
                 'latitude': lat,
                 'longitude': lon
-            }], zoom=12
+            }], color='#4CAF50', zoom=12
         )
 
         try:
@@ -209,7 +218,7 @@ if submit_button and user_message and location:
         # define Kenya 
         sub = (5.5, 33, -5.5, 43) #North, West, South, East
 
-        df, data_dict = extract_cordex_climate_data(lat, lon, historical, projection)
+        df_temp, df_pr, data_dict = extract_cordex_climate_data(lat, lon, historical, projection)
         seasonal_anomalies = calculate_season_anomalies_location(forecast, hindcast, sub)
         current_season_anomaly = extract_seasonal_data(lat, lon, seasonal_anomalies, seasons_ke)
 
@@ -259,7 +268,7 @@ if submit_button and user_message and location:
             "Near surface temperature",
         )
         st.line_chart(
-            df,
+            df_temp,
             x="Month",
             y=["Present Day Temperature", "Future Temperature"],
             color=["#4CAF50", "#2E7D32"],
@@ -268,7 +277,7 @@ if submit_button and user_message and location:
             "Precipitation",
         )
         st.line_chart(
-            df,
+            df_pr,
             x="Month",
             y=["Present Day Precipitation", "Future Precipitation"],
             color=["#4CAF50", "#2E7D32"],

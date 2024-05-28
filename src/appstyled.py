@@ -22,10 +22,9 @@ from ollama_functions import OllamaFunctions
 from langchain.chains import LLMChain
 from langchain_core.pydantic_v1 import BaseModel
 
-OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+config_path = os.getenv('CONFIG_PATH', 'C:/Users/onyan/OneDrive/Desktop/daas/config.yaml')
 
-config_path = os.getenv('CONFIG_PATH', 'config.yaml')
-# print(config_path)
+print(config_path)
 with open(config_path, 'r') as file:
     config = yaml.safe_load(file)
 
@@ -75,13 +74,6 @@ forecast, hindcast = load_seasonal_forecast(data_dir=data_dir)
 # Custom CSS for styling and mobile responsiveness
 custom_css = """
 <style>
-[data-testid="stAppViewContainer"]{
-background-color: #e5e5f7;
-opacity: 0.8;
-background-image:  radial-gradient(#4caf50 0.5px, transparent 0.5px), radial-gradient(#4caf50 0.5px, #e5e5f7 0.5px);
-background-size: 20px 20px;
-background-position: 0 0,10px 10px;
-}
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 body {
@@ -95,7 +87,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stButton button, .stFormSubmitButton button {
-    text-align: center;
     background-color: #4CAF50 !important;
     color: white !important;
     border: none;
@@ -119,8 +110,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .stTextInput input {
-    background: transparent;
-    border-bottom: 1px solid #4CAF50 !important;
+    border: 2px solid #4CAF50 !important;
     border-radius: 5px;
     padding: 10px;
     font-size: 16px;
@@ -171,120 +161,153 @@ h1, h2, h3, h4, h5, h6 {
 # Embed CSS in Streamlit
 st.markdown(custom_css, unsafe_allow_html=True)
 
+# Carousel Component
+def carousel():
+    carousel_html = """
+    <div id="carouselExampleControls" class="carousel slide" data-ride="carousel">
+        <div class="carousel-inner">
+            <div class="carousel-item active">
+                <img class="d-block w-100" src="https://via.placeholder.com/800x400?text=Slide+1" alt="First slide">
+            </div>
+            <div class="carousel-item">
+                <img class="d-block w-100" src="https://via.placeholder.com/800x400?text=Slide+2" alt="Second slide">
+            </div>
+            <div class="carousel-item">
+                <img class="d-block w-100" src="https://via.placeholder.com/800x400?text=Slide+3" alt="Third slide">
+            </div>
+        </div>
+        <a class="carousel-control-prev" href="#carouselExampleControls" role="button" data-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="sr-only">Previous</span>
+        </a>
+        <a class="carousel-control-next" href="#carouselExampleControls" role="button" data-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="sr-only">Next</span>
+        </a>
+    </div>
+    <script>
+        $('.carousel').carousel({
+            interval: 2000
+        })
+    </script>
+    """
+    st.markdown(carousel_html, unsafe_allow_html=True)
+
 # Title and Description
 st.markdown("""
     <div style="text-align: center;">
-        <h1>daas-Climate Services</h1>
+        <h1>:earth_africa: daas-Climate</h1>
     </div>
     <div style="text-align: center; margin-bottom: 20px;">
         <p>Evaluate climate conditions for your activities at any location.</p>
     </div>
 """, unsafe_allow_html=True)
 
-# Wrap the input fields and the submit button in a form
-with st.form(key='my_form', border=False):
-    user_message = st.text_input(
-        "Describe the activity that you would like to evaluate for this location: "
-    )
-    location = st.text_input(
-        "Please enter your location of interest: "
-    )
-    
-    submit_button = st.form_submit_button(label='Consult')
+# Carousel
+carousel()
 
-if submit_button and user_message and location:
-    lat, lon = get_lat_lon(location)
+# Navigation Button
+if st.button('Next'):
+    st.session_state.page = 'form'
 
-    # col1, col2 = st.columns(2)
-    # lat = col1.number_input("Latitude", value=lat, format="%.4f")
-    # lon = col2.number_input("Longitude", value=lon, format="%.4f")
-    show_add_info = st.checkbox("Provide additional information", value=True, help="""If this is activated you will see all the variables
-                            that were taken into account for the analysis as well as some plots.""")
+# Form Page
+if 'page' in st.session_state and st.session_state.page == 'form':
+    with st.form(key='my_form'):
+        user_message = st.text_input("Describe the activity that you would like to evaluate for this location: ")
+        location = st.text_input("Please enter your location of interest: ")
+        submit_button = st.form_submit_button(label='Generate')
 
-    with st.spinner("Analyzing location information...."):
-        st.markdown(f"**Coordinates:** {round(lat, 4)}, {round(lon, 4)}")
+    if submit_button and user_message and location:
+        lat, lon = get_lat_lon(location)
 
-        # Define map 
-        st.map(
-            [{
-                'latitude': lat,
-                'longitude': lon
-            }], color='#4CAF50', zoom=12
-        )
+        col1, col2 = st.columns(2)
+        lat = col1.number_input("Latitude", value=lat, format="%.4f")
+        lon = col2.number_input("Longitude", value=lon, format="%.4f")
+        show_add_info = st.checkbox("Provide additional information", value=True, help="""If this is activated you will see all the variables
+                                that were taken into account for the analysis as well as some plots.""")
 
-        try:
-            soil_type = get_soil_from_api(lat, lon)
-        except:
-            soil_type = "Not known"
-        
-        # define Kenya 
-        sub = (5.5, 33, -5.5, 43) #North, West, South, East
+        with st.spinner("Loading location information...."):
+            st.markdown(f"**Coordinates:** {round(lat, 4)}, {round(lon, 4)}")
 
-        df_temp, df_pr, data_dict = extract_cordex_climate_data(lat, lon, historical, projection)
-        seasonal_anomalies = calculate_season_anomalies_location(forecast, hindcast, sub)
-        current_season_anomaly = extract_seasonal_data(lat, lon, seasonal_anomalies, seasons_ke)
+            # Define map 
+            st.map(
+                [{
+                    'latitude': lat,
+                    'longitude': lon
+                }], zoom=12
+            )
 
-    with st.spinner("Generating..."):
-        chat_box = st.empty()
-        stream_handler = StreamHandler(chat_box, display_method="write")
-        # llm = ChatOpenAI(
-        #     model="gpt-4o",
-        #     temperature=0 
-        # )
-        llm = ChatOpenAI(
-            openai_api_base = "http://localhost:11434/v1",
-            api_key= "ollama",
-            model="llama3",
-            temperature=0
-        )
+            try:
+                soil_type = get_soil_from_api(lat, lon)
+            except:
+                soil_type = "Not known"
+            
+            # define Kenya 
+            sub = (5.5, 33, -5.5, 43) #North, West, South, East
 
-        system_message_prompt = SystemMessagePromptTemplate.from_template(system_role)
-        human_message_prompt = HumanMessagePromptTemplate.from_template(content_message)
-        chat_prompt = ChatPromptTemplate.from_messages(
-            [system_message_prompt, human_message_prompt]
-        )
-        chain = LLMChain(
-            llm=llm,
-            prompt=chat_prompt,
-            verbose=True,
-        ) 
-        output = chain.run(
-            user_message=user_message,
-            lat=str(lat),
-            lon=str(lon),
-            soil=soil_type,
-            hist_temp_str=data_dict["hist_temp"],
-            future_temp_str=data_dict["future_temp"],
-            hist_pr_str=data_dict["hist_pr"],
-            future_pr_str=data_dict["future_pr"],
-            current_season_pr_anomaly = current_season_anomaly,
-            verbose=True,
-        )
+            df, data_dict = extract_cordex_climate_data(lat, lon, historical, projection)
+            seasonal_anomalies = calculate_season_anomalies_location(forecast, hindcast, sub)
+            current_season_anomaly = extract_seasonal_data(lat, lon, seasonal_anomalies, seasons_ke)
 
-        st.subheader("Here is what you need to know")
-        st.markdown(output)
+        with st.spinner("Generating..."):
+            chat_box = st.empty()
 
-    if show_add_info:
-        st.subheader("Additional information")
-        st.markdown(f"**Coordinates:** {round(lat, 4)}, {round(lon, 4)}")
-        st.markdown(f"**Soil type:** {soil_type}")
-        # Climate Data
-        st.markdown("**Climate data:**")
-        st.markdown(
-            "Near surface temperature",
-        )
-        st.line_chart(
-            df_temp,
-            x="Month",
-            y=["Present Day Temperature", "Future Temperature"],
-            color=["#4CAF50", "#2E7D32"],
-        )
-        st.markdown(
-            "Precipitation",
-        )
-        st.line_chart(
-            df_pr,
-            x="Month",
-            y=["Present Day Precipitation", "Future Precipitation"],
-            color=["#4CAF50", "#2E7D32"],
-        )
+
+            stream_handler = StreamHandler(chat_box, display_method="write")
+            llm = ChatOpenAI(
+                openai_api_base = "http://localhost:11434/v1",
+                api_key= "ollama",
+                model="llama3",
+                temperature=0
+            )
+
+            system_message_prompt = SystemMessagePromptTemplate.from_template(system_role)
+            human_message_prompt = HumanMessagePromptTemplate.from_template(content_message)
+            chat_prompt = ChatPromptTemplate.from_messages(
+                [system_message_prompt, human_message_prompt]
+            )
+            chain = LLMChain(
+                llm=llm,
+                prompt=chat_prompt,
+                verbose=True,
+            ) 
+            output = chain.run(
+                user_message=user_message,
+                lat=str(lat),
+                lon=str(lon),
+                soil=soil_type,
+                hist_temp_str=data_dict["hist_temp"],
+                future_temp_str=data_dict["future_temp"],
+                hist_pr_str=data_dict["hist_pr"],
+                future_pr_str=data_dict["future_pr"],
+                current_season_pr_anomaly = current_season_anomaly,
+                verbose=True,
+            )
+
+            st.subheader("Here is what you need to know")
+            st.markdown(output)
+
+        if show_add_info:
+            st.subheader("Additional information")
+            st.markdown(f"**Coordinates:** {round(lat, 4)}, {round(lon, 4)}")
+            st.markdown(f"**Soil type:** {soil_type}")
+            # Climate Data
+            st.markdown("**Climate data:**")
+            st.markdown(
+                "Near surface temperature",
+            )
+            st.line_chart(
+                df,
+                x="Month",
+                y=["Present Day Temperature", "Future Temperature"],
+                color=["#4CAF50", "#2E7D32"],
+            )
+            st.markdown(
+                "Precipitation",
+            )
+            st.line_chart(
+                df,
+                x="Month",
+                y=["Present Day Precipitation", "Future Precipitation"],
+                color=["#4CAF50", "#2E7D32"],
+            )

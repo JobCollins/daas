@@ -229,7 +229,7 @@ if submit_button and user_message and location:
         stream_handler = StreamHandler(chat_box, display_method="write")
         # llm = ChatOpenAI(
         #     model="gpt-4o",
-        #     temperature=0
+        #     temperature=0 
         # )
         llm = ChatOpenAI(
             openai_api_base = "http://localhost:11434/v1",

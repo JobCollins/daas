@@ -22,7 +22,7 @@ from ollama_functions import OllamaFunctions
 from langchain.chains import LLMChain
 from langchain_core.pydantic_v1 import BaseModel
 
-config_path = os.getenv('CONFIG_PATH', 'C:/Users/onyan/OneDrive/Desktop/daas/config.yaml')
+config_path = os.getenv('CONFIG_PATH', 'config.yaml')
 
 print(config_path)
 with open(config_path, 'r') as file:

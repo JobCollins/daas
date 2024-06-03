@@ -13,6 +13,7 @@ langchain-text-splitters==0.0.1
 langdetect==1.0.9
 langsmith==0.1.51
 matplotlib==3.8.4
+netcdf4 --no-binary=netcdf4
 numpy==1.26.4
 pandas==2.2.2
 PyYAML==6.0.1
@@ -22,4 +23,4 @@ s3fs
 streamlit==1.33.0
 streamlit_folium==0.20.0
 urllib3==2.2.1
-xarray==2024.3.0
+xarray --no-binary=xarray

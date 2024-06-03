@@ -1,5 +1,6 @@
 cdsapi==0.7.0
 cfgrib==0.9.11.0
+google-cloud-storage==2.16.0
 langchain==0.1.19
 langchain-community==0.0.38
 langchain-core==0.1.52

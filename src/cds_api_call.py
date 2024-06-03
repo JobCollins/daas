@@ -20,6 +20,12 @@ import cdsapi
 import numpy as np
 import xarray as xr
 
+import boto3
+import dask
+import re
+import s3fs
+from dask.distributed import Client, progress
+
 # Libraries for plotting and visualising data
 import matplotlib.path as mpath
 import matplotlib.pyplot as plt
@@ -41,6 +47,10 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+# Fetch AWS credentials from environment variables
+aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
 
 URL = 'https://cds.climate.copernicus.eu/api/v2'
 KEY = os.getenv('CDS_API_KEY')
@@ -92,16 +102,132 @@ def unzip_files(data_dir):
         with zipfile.ZipFile(j, 'r') as zip_ref:
             zip_ref.extractall(f'{data_dir}')
 @st.cache_data
-def load_hist_proj(data_dir):
-    hist_data = xr.open_mfdataset(f'{data_dir}*CanESM2_historical*.nc')
-    proj_data = xr.open_mfdataset(f'{data_dir}*CanESM2_rcp45*.nc')
+def load_hist_proj(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key ):
+    # Initialize a boto3 session
+    session = boto3.Session(
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key
+    )
+
+    # Initialize S3 client
+    s3_client = session.client('s3')
+    bucket_name = 'agrexdata'
+    prefix = 'data/'
+
+    # Initialize a Dask client
+    client = Client()  # This will start a local Dask cluster. For larger datasets, configure a distributed cluster.
+    print(client)
+
+    try:
+        # List objects in the specified S3 bucket and prefix
+        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+        if 'Contents' not in response:
+            raise ValueError(f"No files found in the specified S3 path: s3://{bucket_name}/{prefix}")
+
+        # Filter files with the pattern CanESM2_historical
+        remote_hist_files = [item['Key'] for item in response['Contents']
+                        if re.search(r'CanESM2_historical.*\.nc', item['Key'])]
+        remote_proj_files = [item['Key'] for item in response['Contents']
+                        if re.search(r'CanESM2_rcp45.*\.nc', item['Key'])]
+
+        if not remote_hist_files:
+            raise ValueError("No files matching the pattern 'CanESM2_historical' found in the S3 bucket.")
+        
+        if not remote_proj_files:
+            raise ValueError("No files matching the pattern 'CanESM2_rcp45' found in the S3 bucket.")
+
+        # Use s3fs to create a file system object
+        s3 = s3fs.S3FileSystem(key=aws_access_key_id, secret=aws_secret_access_key)
+
+        # Generate a list of opened files
+        hist_fileset = [s3.open(f's3://{bucket_name}/{file}') for file in remote_hist_files]
+        proj_fileset = [s3.open(f's3://{bucket_name}/{file}') for file in remote_proj_files]
+
+        # Enable dask for parallel processing
+        hist_data = xr.open_mfdataset(hist_fileset, combine='by_coords', parallel=True)
+        proj_data = xr.open_mfdataset(proj_fileset, combine='by_coords', parallel=True)
+
+        # Persist data in memory to speed up further operations
+        hist_data = hist_data.persist()
+        proj_data = proj_data.persist()
+        # progress(data)
+
+        print("Datasets loaded successfully")
+
+    except boto3.exceptions.S3UploadFailedError as e:
+        print(f"Permission error: Check your AWS credentials and permissions for the specified S3 path. {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        client.close()
+
+    # hist_data = xr.open_mfdataset(f'{data_dir}*CanESM2_historical*.nc')
+    # proj_data = xr.open_mfdataset(f'{data_dir}*CanESM2_rcp45*.nc')
     return hist_data, proj_data
 
 @st.cache_data
-def load_seasonal_forecast(data_dir):
-    seas5_forecast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib', engine='cfgrib', 
+def load_seasonal_forecast(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key):
+    # Initialize a boto3 session
+    session = boto3.Session(
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key
+    )
+
+    # Initialize S3 client
+    s3_client = session.client('s3')
+    bucket_name = 'agrexdata'
+    prefix = 'data/seasonal/'
+
+    # Initialize a Dask client
+    client = Client()  # This will start a local Dask cluster. For larger datasets, configure a distributed cluster.
+    print(client)
+
+    try:
+        # List objects in the specified S3 bucket and prefix
+        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+        if 'Contents' not in response:
+            raise ValueError(f"No files found in the specified S3 path: s3://{bucket_name}/{prefix}")
+
+        # Filter files with the pattern CanESM2_historical
+        fore_file_key = next((item['Key'] for item in response['Contents']
+                     if re.search(r'forecast_monthly_tp.*\.nc', item['Key'])), None)
+        hist_file_key = next((item['Key'] for item in response['Contents']
+                     if re.search(r'hindcast_monthly_tp.*\.nc', item['Key'])), None)
+
+        if not fore_file_key:
+            raise ValueError("No files matching the pattern 'forecast_monthly_tp' found in the S3 bucket.")
+        
+        if not hist_file_key:
+            raise ValueError("No files matching the pattern 'hindcast_monthly_tp' found in the S3 bucket.")
+
+        # Use s3fs to create a file system object
+        s3 = s3fs.S3FileSystem(key=aws_access_key_id, secret=aws_secret_access_key)
+
+        # Open the selected file using xarray
+        fore_file_path = f's3://{bucket_name}/{fore_file_key}'
+        hist_file_path = f's3://{bucket_name}/{hist_file_key}'
+
+        seas5_forecast = xr.open_dataset(s3.open(fore_file_path), engine='cfgrib', 
                                  backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
-    ds_hindcast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib', engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+        
+        ds_hindcast = xr.open_dataset(s3.open(hist_file_path), engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+
+        
+        # progress(data)
+
+        print("Datasets loaded successfully")
+
+    except boto3.exceptions.S3UploadFailedError as e:
+        print(f"Permission error: Check your AWS credentials and permissions for the specified S3 path. {e}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        client.close()
+
+
+    # seas5_forecast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib', engine='cfgrib', 
+    #                              backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+    # ds_hindcast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib', engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
     return seas5_forecast, ds_hindcast
 
 if __name__ == "__main__":

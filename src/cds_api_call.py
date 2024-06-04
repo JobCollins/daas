@@ -17,6 +17,7 @@ Format: NetCDF in zip archives
 import cdsapi
 
 # Libraries for working with multidimensional arrays
+import fsspec
 import numpy as np
 import xarray as xr
 
@@ -186,14 +187,15 @@ def load_seasonal_forecast(aws_access_key_id=aws_access_key_id, aws_secret_acces
         # Use s3fs to create a file system object
         s3 = s3fs.S3FileSystem(key=aws_access_key_id, secret=aws_secret_access_key)
 
-        fore_aws_url = 's3://agrexdata/data/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib'
-        hind_aws_url = 's3://agrexdata/data/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib'
+        fore_aws_url = 'simplecache::s3://agrexdata/data/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib'
+        hind_aws_url = 'simplecache::s3://agrexdata/data/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib'
 
-        with s3.open(fore_aws_url) as fileObj:
-            seas5_forecast = xr.open_dataset(fileObj, engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+        fore_file = fsspec.open_local(fore_aws_url, s3={'anon': True}, filecache={'cache_storage':'/tmp/files'})
+        hind_file = fsspec.open_local(hind_aws_url, s3={'anon': True}, filecache={'cache_storage':'/tmp/files'})
 
-        with s3.open(hind_aws_url) as fileObject:
-            ds_hindcast = xr.open_dataset(fileObject, engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+        seas5_forecast = xr.open_dataset(fore_file, engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+
+        ds_hindcast = xr.open_dataset(hind_file, engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
 
         print("Datasets loaded successfully")
 

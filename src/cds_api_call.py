@@ -183,37 +183,17 @@ def load_seasonal_forecast(aws_access_key_id=aws_access_key_id, aws_secret_acces
     print(client)
 
     try:
-        # List objects in the specified S3 bucket and prefix
-        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
-        if 'Contents' not in response:
-            raise ValueError(f"No files found in the specified S3 path: s3://{bucket_name}/{prefix}")
-
-        # Filter files with the pattern CanESM2_historical
-        fore_file_key = next((item['Key'] for item in response['Contents']
-                     if re.search(r'forecast_monthly_tp.*\.nc', item['Key'])), None)
-        hist_file_key = next((item['Key'] for item in response['Contents']
-                     if re.search(r'hindcast_monthly_tp.*\.nc', item['Key'])), None)
-
-        if not fore_file_key:
-            raise ValueError("No files matching the pattern 'forecast_monthly_tp' found in the S3 bucket.")
-        
-        if not hist_file_key:
-            raise ValueError("No files matching the pattern 'hindcast_monthly_tp' found in the S3 bucket.")
-
         # Use s3fs to create a file system object
         s3 = s3fs.S3FileSystem(key=aws_access_key_id, secret=aws_secret_access_key)
 
-        # Open the selected file using xarray
-        fore_file_path = f's3://{bucket_name}/{fore_file_key}'
-        hist_file_path = f's3://{bucket_name}/{hist_file_key}'
+        fore_aws_url = 's3://agrexdata/data/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib'
+        hind_aws_url = 's3://agrexdata/data/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib'
 
-        seas5_forecast = xr.open_dataset(s3.open(fore_file_path), engine='cfgrib', 
-                                 backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
-        
-        ds_hindcast = xr.open_dataset(s3.open(hist_file_path), engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+        with s3.open(fore_aws_url) as fileObj:
+            seas5_forecast = xr.open_dataset(fileObj, engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
 
-        
-        # progress(data)
+        with s3.open(hind_aws_url) as fileObject:
+            ds_hindcast = xr.open_dataset(fileObject, engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
 
         print("Datasets loaded successfully")
 

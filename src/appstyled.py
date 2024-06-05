@@ -69,7 +69,7 @@ class AnswerWithJustification(BaseModel):
     answer: str
     justification: str
 
-async def main():
+def main():
     placeholder = st.empty()
 
 
@@ -317,7 +317,7 @@ async def main():
             # define Kenya 
             sub = (5.5, 33, -5.5, 43) #North, West, South, East
 
-            df_temp, df_pr, data_dict = await asyncio.to_thread(extract_cordex_climate_data, lat, lon, historical, projection)
+            df_temp, df_pr, data_dict = await extract_cordex_climate_data(lat, lon, historical, projection)
             seasonal_anomalies = calculate_season_anomalies_location(forecast, hindcast, sub)
             current_season_anomaly = extract_seasonal_data(lat, lon, seasonal_anomalies, seasons_ke)
 
@@ -388,4 +388,4 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()

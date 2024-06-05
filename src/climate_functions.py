@@ -18,7 +18,7 @@ def convert_to_mm_per_month(data):
     return data_climatology_mm_month
 
 @st.cache_data
-async def extract_cordex_climate_data(lat, lon, _hist, _future):
+def extract_cordex_climate_data(lat, lon, _hist, _future):
     """
     Extracts climate data for a given latitude and longitude from historical and future datasets.
 

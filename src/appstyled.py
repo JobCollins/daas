@@ -162,7 +162,7 @@ def main():
 
     placeholder.empty()
 
-    forecast, hindcast = load_seasonal_forecast(data_dir=data_dir)
+    # forecast, hindcast = load_seasonal_forecast(data_dir=data_dir)
 
 
     # Custom CSS for styling and mobile responsiveness

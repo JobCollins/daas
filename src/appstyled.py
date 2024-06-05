@@ -1,6 +1,7 @@
 import json
 import yaml
 import os
+import asyncio
 
 import streamlit as st
 from streamlit_folium import st_folium
@@ -316,7 +317,7 @@ def main():
             # define Kenya 
             sub = (5.5, 33, -5.5, 43) #North, West, South, East
 
-            df_temp, df_pr, data_dict = extract_cordex_climate_data(lat, lon, historical, projection)
+            df_temp, df_pr, data_dict = await extract_cordex_climate_data(lat, lon, historical, projection)
             seasonal_anomalies = calculate_season_anomalies_location(forecast, hindcast, sub)
             current_season_anomaly = extract_seasonal_data(lat, lon, seasonal_anomalies, seasons_ke)
 
@@ -387,4 +388,4 @@ def main():
 
 
 if __name__ == "__main__":
-     main()
+    asyncio.run(main())

@@ -6,6 +6,7 @@ import numpy as np
 import pandas as pd
 import streamlit as st
 
+
 from geo_loc import ds_latlon_subset
 
 def convert_to_mm_per_month(data):
@@ -17,7 +18,7 @@ def convert_to_mm_per_month(data):
     return data_climatology_mm_month
 
 @st.cache_data
-def extract_cordex_climate_data(lat, lon, _hist, _future):
+async def extract_cordex_climate_data(lat, lon, _hist, _future):
     """
     Extracts climate data for a given latitude and longitude from historical and future datasets.
 

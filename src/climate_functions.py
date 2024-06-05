@@ -34,7 +34,7 @@ def extract_cordex_climate_data(lat, lon, _hist, _future):
     hist_temp = _hist['tas']
     hist_temp = hist_temp.groupby('time.month').mean()
     hist_temp = hist_temp.sel(rlat=lat, rlon=lon, method="nearest") - 273.15
-    print(hist_temp.values())
+    print(hist_temp)
     hist_temp_str = np.array2string(hist_temp.ravel(), precision=3, max_line_width=100)[
         1:-1
     ]

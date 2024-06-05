@@ -50,8 +50,10 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # Fetch AWS credentials from environment variables
-aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
-aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+# aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
+# aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
+aws_access_key_id = st.secrets["AWS_ACCESS_KEY_ID"]
+aws_secret_access_key = st.secrets["AWS_SECRET_ACCESS_KEY"]
 
 URL = 'https://cds.climate.copernicus.eu/api/v2'
 KEY = os.getenv('CDS_API_KEY')
@@ -174,8 +176,8 @@ def load_seasonal_forecast(aws_access_key_id=aws_access_key_id, aws_secret_acces
         fore_aws_url = 'simplecache::s3://agrexdata/data/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib'
         hind_aws_url = 'simplecache::s3://agrexdata/data/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib'
 
-        fore_file = fsspec.open_local(fore_aws_url, s3={'anon': True, 'key': aws_access_key_id, 'secret': aws_secret_access_key}, filecache={'cache_storage':'/tmp/files'})
-        hind_file = fsspec.open_local(hind_aws_url, s3={'anon': True, 'key': aws_access_key_id, 'secret': aws_secret_access_key}, filecache={'cache_storage':'/tmp/files'})
+        fore_file = fsspec.open_local(fore_aws_url, s3={'key': aws_access_key_id, 'secret': aws_secret_access_key}, filecache={'cache_storage':'/tmp/files'})
+        hind_file = fsspec.open_local(hind_aws_url, s3={'key': aws_access_key_id, 'secret': aws_secret_access_key}, filecache={'cache_storage':'/tmp/files'})
 
         seas5_forecast = xr.open_dataset(fore_file, engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
 

@@ -69,7 +69,7 @@ class AnswerWithJustification(BaseModel):
     answer: str
     justification: str
 
-def main():
+async def main():
     placeholder = st.empty()
 
 

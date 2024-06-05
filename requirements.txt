@@ -20,6 +20,7 @@ PyYAML==6.0.1
 python-dotenv==1.0.1
 requests==2.31.0
 s3fs
+st-files-connection
 streamlit==1.33.0
 streamlit_folium==0.20.0
 urllib3==2.2.1

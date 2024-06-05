@@ -168,24 +168,8 @@ def load_hist_proj(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aw
 
 @st.cache_data
 def load_seasonal_forecast(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key):
-    # Initialize a boto3 session
-    session = boto3.Session(
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key
-    )
-
-    # Initialize S3 client
-    s3_client = session.client('s3')
-    bucket_name = 'agrexdata'
-    prefix = 'data/seasonal/'
-
-    # Initialize a Dask client
-    client = Client()  # This will start a local Dask cluster. For larger datasets, configure a distributed cluster.
-    print(client)
 
     try:
-        # Use s3fs to create a file system object
-        s3 = s3fs.S3FileSystem(key=aws_access_key_id, secret=aws_secret_access_key)
 
         fore_aws_url = 'simplecache::s3://agrexdata/data/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib'
         hind_aws_url = 'simplecache::s3://agrexdata/data/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib'
@@ -203,9 +187,6 @@ def load_seasonal_forecast(aws_access_key_id=aws_access_key_id, aws_secret_acces
         print(f"Permission error: Check your AWS credentials and permissions for the specified S3 path. {e}")
     except Exception as e:
         print(f"An error occurred: {e}")
-    finally:
-        client.close()
-
 
     # seas5_forecast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib', engine='cfgrib', 
     #                              backend_kwargs=dict(time_dims=('forecastMonth', 'time')))

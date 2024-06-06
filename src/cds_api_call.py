@@ -118,8 +118,8 @@ def load_hist_proj(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aw
     prefix = 'data/'
 
     # Initialize a Dask client
-    client = Client()  # This will start a local Dask cluster. For larger datasets, configure a distributed cluster.
-    print(client)
+    # client = Client()  # This will start a local Dask cluster. For larger datasets, configure a distributed cluster.
+    # print(client)
 
     try:
         # List objects in the specified S3 bucket and prefix
@@ -150,9 +150,9 @@ def load_hist_proj(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aw
         hist_data = xr.open_mfdataset(hist_fileset, combine='by_coords', parallel=True)
         proj_data = xr.open_mfdataset(proj_fileset, combine='by_coords', parallel=True)
 
-        # Persist data in memory to speed up further operations
-        hist_data = hist_data.persist()
-        proj_data = proj_data.persist()
+        # # Persist data in memory to speed up further operations
+        # hist_data = hist_data.persist()
+        # proj_data = proj_data.persist()
         # progress(data)
 
         print("Datasets loaded successfully")
@@ -161,8 +161,8 @@ def load_hist_proj(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aw
         print(f"Permission error: Check your AWS credentials and permissions for the specified S3 path. {e}")
     except Exception as e:
         print(f"An error occurred: {e}")
-    finally:
-        client.close()
+    # finally:
+    #     client.close()
 
     # hist_data = xr.open_mfdataset(f'{data_dir}*CanESM2_historical*.nc')
     # proj_data = xr.open_mfdataset(f'{data_dir}*CanESM2_rcp45*.nc')

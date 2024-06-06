@@ -105,68 +105,68 @@ def unzip_files(data_dir):
         with zipfile.ZipFile(j, 'r') as zip_ref:
             zip_ref.extractall(f'{data_dir}')
 @st.cache_data
-def load_hist_proj(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key ):
-    # Initialize a boto3 session
-    session = boto3.Session(
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key
-    )
+# def load_hist_proj(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key ):
+#     # Initialize a boto3 session
+#     session = boto3.Session(
+#         aws_access_key_id=aws_access_key_id,
+#         aws_secret_access_key=aws_secret_access_key
+#     )
 
-    # Initialize S3 client
-    s3_client = session.client('s3')
-    bucket_name = 'agrexdata'
-    prefix = 'data/'
+#     # Initialize S3 client
+#     s3_client = session.client('s3')
+#     bucket_name = 'agrexdata'
+#     prefix = 'data/'
 
-    # Initialize a Dask client
-    # client = Client()  # This will start a local Dask cluster. For larger datasets, configure a distributed cluster.
-    # print(client)
+#     # Initialize a Dask client
+#     # client = Client()  # This will start a local Dask cluster. For larger datasets, configure a distributed cluster.
+#     # print(client)
 
-    try:
-        # List objects in the specified S3 bucket and prefix
-        response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
-        if 'Contents' not in response:
-            raise ValueError(f"No files found in the specified S3 path: s3://{bucket_name}/{prefix}")
+#     try:
+#         # List objects in the specified S3 bucket and prefix
+#         response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=prefix)
+#         if 'Contents' not in response:
+#             raise ValueError(f"No files found in the specified S3 path: s3://{bucket_name}/{prefix}")
 
-        # Filter files with the pattern CanESM2_historical
-        remote_hist_files = [item['Key'] for item in response['Contents']
-                        if re.search(r'CanESM2_historical.*\.nc', item['Key'])]
-        remote_proj_files = [item['Key'] for item in response['Contents']
-                        if re.search(r'CanESM2_rcp45.*\.nc', item['Key'])]
+#         # Filter files with the pattern CanESM2_historical
+#         remote_hist_files = [item['Key'] for item in response['Contents']
+#                         if re.search(r'CanESM2_historical.*\.nc', item['Key'])]
+#         remote_proj_files = [item['Key'] for item in response['Contents']
+#                         if re.search(r'CanESM2_rcp45.*\.nc', item['Key'])]
 
-        if not remote_hist_files:
-            raise ValueError("No files matching the pattern 'CanESM2_historical' found in the S3 bucket.")
+#         if not remote_hist_files:
+#             raise ValueError("No files matching the pattern 'CanESM2_historical' found in the S3 bucket.")
         
-        if not remote_proj_files:
-            raise ValueError("No files matching the pattern 'CanESM2_rcp45' found in the S3 bucket.")
+#         if not remote_proj_files:
+#             raise ValueError("No files matching the pattern 'CanESM2_rcp45' found in the S3 bucket.")
 
-        # Use s3fs to create a file system object
-        s3 = s3fs.S3FileSystem(key=aws_access_key_id, secret=aws_secret_access_key)
+#         # Use s3fs to create a file system object
+#         s3 = s3fs.S3FileSystem(key=aws_access_key_id, secret=aws_secret_access_key)
 
-        # Generate a list of opened files
-        hist_fileset = [s3.open(f's3://{bucket_name}/{file}') for file in remote_hist_files]
-        proj_fileset = [s3.open(f's3://{bucket_name}/{file}') for file in remote_proj_files]
+#         # Generate a list of opened files
+#         hist_fileset = [s3.open(f's3://{bucket_name}/{file}') for file in remote_hist_files]
+#         proj_fileset = [s3.open(f's3://{bucket_name}/{file}') for file in remote_proj_files]
 
-        # Enable dask for parallel processing
-        hist_data = xr.open_mfdataset(hist_fileset, combine='by_coords', parallel=True)
-        proj_data = xr.open_mfdataset(proj_fileset, combine='by_coords', parallel=True)
+#         # Enable dask for parallel processing
+#         hist_data = xr.open_mfdataset(hist_fileset, combine='by_coords', parallel=True)
+#         proj_data = xr.open_mfdataset(proj_fileset, combine='by_coords', parallel=True)
 
-        # # Persist data in memory to speed up further operations
-        # hist_data = hist_data.persist()
-        # proj_data = proj_data.persist()
-        # progress(data)
+#         # # Persist data in memory to speed up further operations
+#         # hist_data = hist_data.persist()
+#         # proj_data = proj_data.persist()
+#         # progress(data)
 
-        print("Datasets loaded successfully")
+#         print("Datasets loaded successfully")
 
-    except boto3.exceptions.S3UploadFailedError as e:
-        print(f"Permission error: Check your AWS credentials and permissions for the specified S3 path. {e}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
-    # finally:
-    #     client.close()
+#     except boto3.exceptions.S3UploadFailedError as e:
+#         print(f"Permission error: Check your AWS credentials and permissions for the specified S3 path. {e}")
+#     except Exception as e:
+#         print(f"An error occurred: {e}")
+#     # finally:
+#     #     client.close()
 
-    # hist_data = xr.open_mfdataset(f'{data_dir}*CanESM2_historical*.nc')
-    # proj_data = xr.open_mfdataset(f'{data_dir}*CanESM2_rcp45*.nc')
-    return hist_data, proj_data
+#     # hist_data = xr.open_mfdataset(f'{data_dir}*CanESM2_historical*.nc')
+#     # proj_data = xr.open_mfdataset(f'{data_dir}*CanESM2_rcp45*.nc')
+#     return hist_data, proj_data
 
 @st.cache_data
 def load_seasonal_forecast(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key):

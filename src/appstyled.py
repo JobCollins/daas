@@ -7,8 +7,8 @@ import streamlit as st
 from streamlit_folium import st_folium
 import folium
 
-from cds_api_call import load_hist_proj, load_seasonal_forecast
-from climate_functions import calculate_season_anomalies_location, extract_cordex_climate_data, extract_seasonal_data
+from cds_api_call import load_seasonal_forecast
+from climate_functions import calculate_season_anomalies_location, extract_seasonal_data
 from geo_loc import get_lat_lon, get_soil_from_api
 
 from langchain.callbacks.base import BaseCallbackHandler
@@ -158,7 +158,7 @@ def main():
     # Injecting CSS and HTML into the placeholder
     placeholder.markdown(splash_css + splash_html, unsafe_allow_html=True)
 
-    historical, projection = load_hist_proj()
+    # historical, projection = load_hist_proj()
     forecast, hindcast = load_seasonal_forecast()
 
     placeholder.empty()
@@ -324,16 +324,16 @@ def main():
         with st.spinner("Generating..."):
             chat_box = st.empty()
             stream_handler = StreamHandler(chat_box, display_method="write")
-            # llm = ChatOpenAI(
-            #     model="gpt-4o",
-            #     temperature=0 
-            # )
             llm = ChatOpenAI(
-                openai_api_base = "http://localhost:11434/v1",
-                api_key= "ollama",
-                model="llama3",
-                temperature=0
+                model="gpt-4o",
+                temperature=0 
             )
+            # llm = ChatOpenAI(
+            #     openai_api_base = "http://localhost:11434/v1",
+            #     api_key= "ollama",
+            #     model="llama3",
+            #     temperature=0
+            # )
 
             system_message_prompt = SystemMessagePromptTemplate.from_template(system_role)
             human_message_prompt = HumanMessagePromptTemplate.from_template(content_message)
@@ -350,10 +350,10 @@ def main():
                 lat=str(lat),
                 lon=str(lon),
                 soil=soil_type,
-                hist_temp_str=data_dict["hist_temp"],
-                future_temp_str=data_dict["future_temp"],
-                hist_pr_str=data_dict["hist_pr"],
-                future_pr_str=data_dict["future_pr"],
+                # hist_temp_str=data_dict["hist_temp"],
+                # future_temp_str=data_dict["future_temp"],
+                # hist_pr_str=data_dict["hist_pr"],
+                # future_pr_str=data_dict["future_pr"],
                 current_season_pr_anomaly = current_season_anomaly,
                 verbose=True,
             )
@@ -366,25 +366,25 @@ def main():
             st.markdown(f"**Coordinates:** {round(lat, 4)}, {round(lon, 4)}")
             st.markdown(f"**Soil type:** {soil_type}")
             # Climate Data
-            st.markdown("**Climate data:**")
-            st.markdown(
-                "Near surface temperature",
-            )
-            st.line_chart(
-                df_temp,
-                x="Month",
-                y=["Present Day Temperature", "Future Temperature"],
-                color=["#4CAF50", "#2E7D32"],
-            )
-            st.markdown(
-                "Precipitation",
-            )
-            st.line_chart(
-                df_pr,
-                x="Month",
-                y=["Present Day Precipitation", "Future Precipitation"],
-                color=["#4CAF50", "#2E7D32"],
-            )
+            # st.markdown("**Climate data:**")
+            # st.markdown(
+            #     "Near surface temperature",
+            # )
+            # st.line_chart(
+            #     df_temp,
+            #     x="Month",
+            #     y=["Present Day Temperature", "Future Temperature"],
+            #     color=["#4CAF50", "#2E7D32"],
+            # )
+            # st.markdown(
+            #     "Precipitation",
+            # )
+            # st.line_chart(
+            #     df_pr,
+            #     x="Month",
+            #     y=["Present Day Precipitation", "Future Precipitation"],
+            #     color=["#4CAF50", "#2E7D32"],
+            # )
 
 
 if __name__ == "__main__":

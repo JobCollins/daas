@@ -81,6 +81,7 @@ def retrieve_cordex_historical(client, data_dir):
         },
         f'{data_dir}1971-2000_cordex_historical_africa.zip')
 
+
 def retrieve_cordex_projection(client, data_dir):
     client.retrieve(
         'projections-cordex-domains-single-levels',

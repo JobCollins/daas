@@ -7,7 +7,7 @@ import streamlit as st
 from streamlit_folium import st_folium
 import folium
 
-from cds_api_call import load_seasonal_forecast
+from cds_api_call import load_seasonal_forecast, load_hist_proj
 from climate_functions import calculate_season_anomalies_location, extract_seasonal_data
 from geo_loc import get_lat_lon, get_soil_from_api
 
@@ -158,8 +158,8 @@ def main():
     # Injecting CSS and HTML into the placeholder
     placeholder.markdown(splash_css + splash_html, unsafe_allow_html=True)
 
-    # historical, projection = load_hist_proj()
-    forecast, hindcast = load_seasonal_forecast()
+    historical, projection = load_hist_proj(data_dir)
+    forecast, hindcast = load_seasonal_forecast(data_dir)
 
     placeholder.empty()
 

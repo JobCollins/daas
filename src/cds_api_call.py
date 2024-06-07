@@ -106,8 +106,8 @@ def unzip_files(data_dir):
         with zipfile.ZipFile(j, 'r') as zip_ref:
             zip_ref.extractall(f'{data_dir}')
 
-# @st.cache_data
-# def load_hist_proj(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key ):
+@st.cache_data
+def load_hist_proj(data_dir):
 #     # Initialize a boto3 session
 #     session = boto3.Session(
 #         aws_access_key_id=aws_access_key_id,

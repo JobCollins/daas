@@ -8,7 +8,7 @@ from streamlit_folium import st_folium
 import folium
 
 from cds_api_call import load_seasonal_forecast, load_hist_proj
-from climate_functions import calculate_season_anomalies_location, extract_seasonal_data
+from climate_functions import calculate_season_anomalies_location, extract_cordex_climate_data, extract_seasonal_data
 from geo_loc import get_lat_lon, get_soil_from_api
 
 from langchain.callbacks.base import BaseCallbackHandler

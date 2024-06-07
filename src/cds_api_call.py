@@ -105,7 +105,8 @@ def unzip_files(data_dir):
     for j in cordex_zip_paths:
         with zipfile.ZipFile(j, 'r') as zip_ref:
             zip_ref.extractall(f'{data_dir}')
-@st.cache_data
+
+# @st.cache_data
 # def load_hist_proj(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key ):
 #     # Initialize a boto3 session
 #     session = boto3.Session(
@@ -165,35 +166,80 @@ def unzip_files(data_dir):
 #     # finally:
 #     #     client.close()
 
-#     # hist_data = xr.open_mfdataset(f'{data_dir}*CanESM2_historical*.nc')
-#     # proj_data = xr.open_mfdataset(f'{data_dir}*CanESM2_rcp45*.nc')
-#     return hist_data, proj_data
+    hist_data = xr.open_mfdataset(f'{data_dir}*CanESM2_historical*.nc')
+    proj_data = xr.open_mfdataset(f'{data_dir}*CanESM2_rcp45*.nc')
+    return hist_data, proj_data
+
+def retrieve_seasonal_hist(client, data_dir):
+    client.retrieve(
+        'seasonal-monthly-single-levels',
+        {
+            'format': 'grib',
+            'originating_centre': 'ecmwf',
+            'system': '51',
+            'variable': 'total_precipitation',
+            'product_type': 'monthly_mean',
+            'year': [
+                '2002', '2003', '2004',
+                '2005', '2006', '2007',
+                '2008', '2009', '2010',
+                '2011', '2012', '2013',
+                '2014', '2015', '2016',
+                '2017', '2018', '2019',
+                '2020', '2021', '2022',
+            ],
+            'month': '03',
+            'leadtime_month': [
+                '1', '2', '3',
+                '4', '5', '6',
+            ],
+        },
+        f'{data_dir}seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib')
+    
+def retrieve_seasonal_proj(client, data_dir):
+    # # Forecast data request
+    client.retrieve(
+        'seasonal-monthly-single-levels',
+        {
+            'format': 'grib',
+            'originating_centre': 'ecmwf',
+            'system': '51',
+            'variable': 'total_precipitation',
+            'product_type': 'monthly_mean',
+            'year': '2024',
+            'month': '05',
+            'leadtime_month': [
+                '1', '2', '3',
+                '4', '5', '6',
+            ],
+        },
+        f'{data_dir}seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib')
 
 @st.cache_data
-def load_seasonal_forecast(aws_access_key_id=aws_access_key_id, aws_secret_access_key=aws_secret_access_key):
+def load_seasonal_forecast(data_dir):
 
-    try:
+    # try:
 
-        fore_aws_url = 'simplecache::s3://agrexdata/data/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib'
-        hind_aws_url = 'simplecache::s3://agrexdata/data/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib'
+    #     fore_aws_url = 'simplecache::s3://agrexdata/data/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib'
+    #     hind_aws_url = 'simplecache::s3://agrexdata/data/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib'
 
-        fore_file = fsspec.open_local(fore_aws_url, s3={'key': aws_access_key_id, 'secret': aws_secret_access_key}, filecache={'cache_storage':'/tmp/files'})
-        hind_file = fsspec.open_local(hind_aws_url, s3={'key': aws_access_key_id, 'secret': aws_secret_access_key}, filecache={'cache_storage':'/tmp/files'})
+    #     fore_file = fsspec.open_local(fore_aws_url, s3={'key': aws_access_key_id, 'secret': aws_secret_access_key}, filecache={'cache_storage':'/tmp/files'})
+    #     hind_file = fsspec.open_local(hind_aws_url, s3={'key': aws_access_key_id, 'secret': aws_secret_access_key}, filecache={'cache_storage':'/tmp/files'})
 
-        seas5_forecast = xr.open_dataset(fore_file, engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+    #     seas5_forecast = xr.open_dataset(fore_file, engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
 
-        ds_hindcast = xr.open_dataset(hind_file, engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+    #     ds_hindcast = xr.open_dataset(hind_file, engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
 
-        print("Datasets loaded successfully")
+    #     print("Datasets loaded successfully")
 
-    except boto3.exceptions.S3UploadFailedError as e:
-        print(f"Permission error: Check your AWS credentials and permissions for the specified S3 path. {e}")
-    except Exception as e:
-        print(f"An error occurred: {e}")
+    # except boto3.exceptions.S3UploadFailedError as e:
+    #     print(f"Permission error: Check your AWS credentials and permissions for the specified S3 path. {e}")
+    # except Exception as e:
+    #     print(f"An error occurred: {e}")
 
-    # seas5_forecast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib', engine='cfgrib', 
-    #                              backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
-    # ds_hindcast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib', engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+    seas5_forecast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib', engine='cfgrib', 
+                                 backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+    ds_hindcast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib', engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
     return seas5_forecast, ds_hindcast
 
 if __name__ == "__main__":
@@ -207,6 +253,8 @@ if __name__ == "__main__":
     client = call_api()
     retrieve_cordex_historical(client, data_dir)
     retrieve_cordex_projection(client, data_dir)
-    unzip_files(data_dir)
+    retrieve_seasonal_hist(client, data_dir)
+    retrieve_seasonal_proj(client, data_dir)
+    # unzip_files(data_dir)
 
 

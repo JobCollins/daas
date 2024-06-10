@@ -106,8 +106,8 @@ def unzip_files(data_dir):
         with zipfile.ZipFile(j, 'r') as zip_ref:
             zip_ref.extractall(f'{data_dir}')
 
-@st.cache_data
-def load_hist_proj(data_dir):
+# @st.cache_data
+# def load_hist_proj(data_dir):
 #     # Initialize a boto3 session
 #     session = boto3.Session(
 #         aws_access_key_id=aws_access_key_id,
@@ -215,7 +215,7 @@ def retrieve_seasonal_proj(client, data_dir):
         },
         f'{data_dir}seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib')
 
-@st.cache_data
+# @st.cache_data
 def load_seasonal_forecast(data_dir):
 
     # try:

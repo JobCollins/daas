@@ -237,9 +237,9 @@ def load_seasonal_forecast(data_dir):
     # except Exception as e:
     #     print(f"An error occurred: {e}")
 
-    seas5_forecast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib', engine='cfgrib', 
+    seas5_forecast = xr.open_dataset(f'{data_dir}seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib', engine='cfgrib', 
                                  backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
-    ds_hindcast = xr.open_dataset(f'{data_dir}/seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib', engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
+    ds_hindcast = xr.open_dataset(f'{data_dir}seasonal/ecmwf_seas5_2002-2022_05_hindcast_monthly_tp.grib', engine='cfgrib', backend_kwargs=dict(time_dims=('forecastMonth', 'time')))
     return seas5_forecast, ds_hindcast
 
 if __name__ == "__main__":

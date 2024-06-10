@@ -154,7 +154,7 @@ def main():
     # Injecting CSS and HTML into the placeholder
     placeholder.markdown(splash_css + splash_html, unsafe_allow_html=True)
 
-    historical, projection = load_hist_proj(data_dir)
+    # historical, projection = load_hist_proj(data_dir)
     forecast, hindcast = load_seasonal_forecast(data_dir)
 
     placeholder.empty()

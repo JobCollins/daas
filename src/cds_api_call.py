@@ -215,7 +215,7 @@ def retrieve_seasonal_proj(client, data_dir):
         },
         f'{data_dir}seasonal/ecmwf_seas5_2024_03_forecast_monthly_tp.grib')
 
-# @st.cache_data
+@st.cache_data
 def load_seasonal_forecast(data_dir):
 
     # try:

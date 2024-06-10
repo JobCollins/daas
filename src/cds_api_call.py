@@ -52,8 +52,8 @@ load_dotenv()
 # Fetch AWS credentials from environment variables
 # aws_access_key_id = os.getenv('AWS_ACCESS_KEY_ID')
 # aws_secret_access_key = os.getenv('AWS_SECRET_ACCESS_KEY')
-aws_access_key_id = st.secrets["AWS_ACCESS_KEY_ID"]
-aws_secret_access_key = st.secrets["AWS_SECRET_ACCESS_KEY"]
+# aws_access_key_id = st.secrets["AWS_ACCESS_KEY_ID"]
+# aws_secret_access_key = st.secrets["AWS_SECRET_ACCESS_KEY"]
 
 URL = 'https://cds.climate.copernicus.eu/api/v2'
 KEY = os.getenv('CDS_API_KEY')

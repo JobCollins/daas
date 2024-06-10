@@ -7,7 +7,7 @@ import streamlit as st
 from streamlit_folium import st_folium
 import folium
 
-from cds_api_call import load_seasonal_forecast, load_hist_proj
+from cds_api_call import load_seasonal_forecast
 from climate_functions import calculate_season_anomalies_location, extract_seasonal_data
 from geo_loc import get_lat_lon, get_soil_from_api
 
@@ -313,7 +313,7 @@ def main():
             # define Kenya 
             sub = (5.5, 33, -5.5, 43) #North, West, South, East
 
-            df_temp, df_pr, data_dict = (lat, lon, historical, projection)
+            # df_temp, df_pr, data_dict = (lat, lon, historical, projection)
             seasonal_anomalies = calculate_season_anomalies_location(forecast, hindcast, sub)
             current_season_anomaly = extract_seasonal_data(lat, lon, seasonal_anomalies, seasons_ke)
 

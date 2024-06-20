@@ -127,7 +127,7 @@ def calculate_season_anomalies_location(forecast, hindcast, sub):
     ds_hindcast_3m = hindcast.rolling(forecastMonth=3).mean()
 
     # Calculate anomalies
-    ds_hindcast_3m_hindcast_mean = ds_hindcast_3m.mean(['number','time'])
+    ds_hindcast_3m_hindcast_mean = ds_hindcast_3m.mean(['number'])
     seas5_anomalies_3m_202403 = seas5_forecast_3m.tprate - ds_hindcast_3m_hindcast_mean.tprate
 
     # Ensemble mean anomaly

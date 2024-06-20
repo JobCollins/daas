@@ -251,10 +251,10 @@ if __name__ == "__main__":
     data_dir = config['data_dir']
 
     client = call_api()
-    retrieve_cordex_historical(client, data_dir)
-    retrieve_cordex_projection(client, data_dir)
+    # retrieve_cordex_historical(client, data_dir)
+    # retrieve_cordex_projection(client, data_dir)
     retrieve_seasonal_hist(client, data_dir)
     retrieve_seasonal_proj(client, data_dir)
-    unzip_files(data_dir)
+    # unzip_files(data_dir)
 
 
